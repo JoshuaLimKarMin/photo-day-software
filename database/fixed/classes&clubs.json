@@ -1,7 +1,21 @@
 {
-   "calsses": {
-      "1a": "1 Setia",
-      "1b": "1 Rasional"
+   "classes": {
+      "00": {
+         "name": "Test class",
+         "studens": {},
+         "teachers": {}
+      },
+      "01": {
+         "name": "Test class 2",
+         "studens": {},
+         "teachers": {}
+      }
    },
-   "clubs": {}
+   "clubs": {
+      "50": {
+         "name": "Test club",
+         "studens": {},
+         "teachers": {}
+      }
+   }
 }

@@ -1,0 +1,11 @@
+{
+   "students": {
+      "000": "Test Student"
+   },
+   "teachers": {
+      "000": "Test Teacher"
+   },
+   "workers": {
+      "000": "Test worker"
+   }
+}

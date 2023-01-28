@@ -2,19 +2,32 @@
    "classes": {
       "00": {
          "name": "Test class",
-         "studens": {},
-         "teachers": {}
+         "students": [
+            {
+               "command": [ "bulkSelect", "001", "01e" ]
+            },
+            "03d"
+         ],
+         "teachers": [
+            "01"
+         ]
       },
       "01": {
          "name": "Test class 2",
-         "studens": {},
-         "teachers": {}
+         "students": [
+            {
+               "command": [ "bulkSelect", "01f", "03c"]
+            }
+         ],
+         "teachers": [
+            "02"
+         ]
       }
    },
    "clubs": {
       "50": {
          "name": "Test club",
-         "studens": {},
+         "students": {},
          "teachers": {}
       }
    }

@@ -54,6 +54,8 @@ const loadData = () => {
    console.log(workers)
 }
 
+// Load data to memory
+
 console.log('Loading HTML files...')
 
 loadHTMLFiles()
@@ -67,75 +69,134 @@ loadData()
 
 console.log('Class, student and faculty list loaded to memory.')
 
-// process.exit()
+// HTTP server
 
-http.createServer((req, res) => {
+http.createServer(async(req, res) => {
    const pathArray = req.url.split('/')
 
    if(req.method === 'POST'){
+      let data
+
+      await new Promise(resolve => req.on('data', async chunk => {
+         try{
+            data = JSON.parse(chunk.toString())
+
+         }catch(error){
+            console.log(error)
+
+            res.writeHead(400, {
+               "Content-Type": "application/json"
+            })
+
+            return res.end(JSON.stringify({
+               reason: "Syntax error, must be converted to JSON before sending to server"
+            }))
+         }
+
+         resolve()
+      }))
+
       switch(pathArray[1]){
          case 'find_id':
-            req.on('data', chunk => {
-               // let data
-               let refID
-               try{
-                  refID = JSON.parse(chunk.toString()).photoID.replace('#', '')
-                  // data = JSON.parse(chunk.toString())
+            if(!data.photoID){
+               res.writeHead(400, {
+                  "Content-Type": "application/json"
+               })
+   
+               return res.end(JSON.stringify({
+                  reason: "PhotoID is undefined"
+               }))
+            }
 
-               }catch(error){
-                  console.log(error)
+            let refID = data.photoID.replace('#', '')
 
-                  res.writeHead(400, {
-                     "Content-Type": "application/json"
-                  })
+            let exist = false
+            let classClubData = null
+            let studentsList
+            let teachersList
+            let workersList
 
-                  return res.end(JSON.stringify({
-                     reason: "Syntax error, must be converted to JSON before sending to server"
-                  }))
-               }
+            console.log(parseInt(`0x${refID}`))
 
-               let exist = false
-               let classClubData
+            if(parseInt(`0x${refID}`) >= 50)for(const club of Object.keys(clubs)){
 
-               if(refID.startsWith('5'))for(const club of Object.keys(clubs)){
-                  if(club === refID){
-                     exist = true
-                     classClubData = clubs[club]
+            }else if(parseInt(`0x${refID}`) >= 50)for(const club of Object.keys(clubs)){
+               if(club !== refID)continue
 
-                     break
-                  }
+               exist = true
+               classClubData = clubs[club]
 
-               }else for(const class1 of Object.keys(classes)){
-                  if(class1 === refID){
-                     exist = true
-                     classClubData = classes[class1]
+               break
 
-                     break
-                  }
-               }
+            }else for(const class1 of Object.keys(classes)){
+               if(class1 !== refID)continue
 
-               if(!exist){
-                  res.writeHead(404, {
-                     "Content-Type": "application/json"
-                  })
+               exist = true
+               classClubData = classes[class1]
 
-                  res.end(JSON.stringify({
-                     reason: "Ref ID not found"
-                  }, null, 2))
+               break
+            }
 
-                  return
-               }
-
-               res.writeHead(200, {
+            if(!exist){
+               res.writeHead(404, {
                   "Content-Type": "application/json"
                })
 
                res.end(JSON.stringify({
-                  className: classClubData.name,
-                  studentList: {},
-                  teacherList: {},
+                  reason: "Ref ID not found"
                }, null, 2))
+
+               return
+            }
+
+            const find = (findList, charNeeded, referenceList) => {
+               const returnList = {}
+
+               if(findList[0].command !== undefined && findList[0].command[0] === 'bulkSelect'){
+                  const starting = parseInt(findList[0].command[1], 16)
+                  const ending = parseInt(findList[0].command[2], 16)
+
+                  for(let i = starting ; i <= ending ; i++){
+                     const checkChar = (number = i.toString(16)) => {
+                        if(number.length < charNeeded)return checkChar(`0${number}`)
+
+                        returnList[number] = referenceList[number]
+                     }
+
+                     checkChar()
+                  }
+               }
+
+               if(findList){
+                  for(const ID of findList){
+                     if(typeof ID === 'object')continue
+                     returnList[ID] = referenceList[ID]
+                  }
+               }
+
+               return returnList
+            }
+
+            if(classClubData.students)studentsList = find(classClubData.students, 3, students)
+            if(classClubData.teachers)teachersList = find(classClubData.teachers, 2, teachers)
+            if(classClubData.workers)workersList = find(classClubData.workers, 2, workers)
+
+            res.writeHead(200, {
+               "Content-Type": "application/json"
             })
+
+            res.end(JSON.stringify({
+               className: classClubData.name,
+               studentsList,
+               teachersList,
+               workersList
+            }, null, 2))
+
+            break
+
+         case 'save_position':
+
+            break
       }
 
       return

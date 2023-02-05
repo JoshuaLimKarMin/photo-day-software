@@ -12,7 +12,7 @@
          window.onload = async() => {
             const photoIDInput = document.getElementById('photoID')
 
-            photoIDInput.addEventListener('cuechange', event => {
+            photoIDInput.addEventListener('change', event => {
                console.log(event.target.value)
             })
          }
@@ -30,6 +30,9 @@
       <label for="photoID">Class / Club photo ID (Must be in hexadecimal) </label>
       <input name="photoID" type="text" id="photoID" placeholder="#1a">
       <input name="photoID" type="button" value="Find ID">
+
+      <p>ID: #00</p>
+      <p>Class / Club name: Placeholder</p>
 
       <p><b>Placement</b></p>
 

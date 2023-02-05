@@ -4,31 +4,62 @@
          "name": "Test class",
          "students": [
             {
-               "command": [ "bulkSelect", "001", "01e" ]
+               "command": [
+                  [ "bulkSelect", "001", "01e" ],
+                  [ "bulkSelect", "01f", "03c" ]
+               ]
             },
             "03d"
          ],
          "teachers": [
-            "01"
+            "600"
          ]
       },
-      "01": {
+      "10": {
          "name": "Test class 2",
          "students": [
             {
-               "command": [ "bulkSelect", "01f", "03c"]
+               "command": [
+                  [ "bulkSelect", "01f", "03c" ]
+               ]
             }
          ],
          "teachers": [
-            "02"
+            "601"
          ]
       }
    },
    "clubs": {
       "50": {
          "name": "Test club",
-         "students": {},
-         "teachers": {}
+         "students": [],
+         "teachers": []
+      }
+   },
+   "faculty": {
+      "d0":{
+         "name": "Teachers",
+         "teachers": [
+            {
+               "command": [ "bulkSelect", "600", "65f" ]
+            }
+         ]
+      },
+      "d1": {
+         "name": "canteen",
+         "workers": [
+            {
+               "command": [ "bulkSelect", "a00", "a06" ]
+            }
+         ]
+      },
+      "d2": {
+         "name": "janitors",
+         "workers": [
+            {
+               "command": [ "bulkSelect", "a06", "a09"]
+            }
+         ]
       }
    }
 }

@@ -10,71 +10,172 @@
          "use strict"
 
          window.onload = async() => {
-            const photoIDInput = document.getElementById('photoID')
+            // ID finder handler start
+            const idInputDiv = document.querySelector('#idInputDiv')
+            const classClubIDInput = document.querySelector('#classClubID')
+            const findIDButton = document.querySelector('#findID')
 
-            photoIDInput.addEventListener('cuechange', event => {
-               console.log(event.target.value)
+            let classClubData = null
+
+            let lastValue = '#'
+
+            classClubIDInput.addEventListener('input', event => {
+               const input = event.target.value
+               if(!input.startsWith('#'))return event.target.value = `#${input}`
+
+               const number = parseInt(event.target.value.replace('#', ''), 16)
+
+               if(!isNaN(number) || input === '#'){
+                  lastValue = input
+
+                  if(document.querySelector('#incorrectNotifyer'))document.querySelector('#incorrectNotifyer').remove()
+                  return
+               }
+
+               event.target.value = lastValue
+
+               if(!document.querySelector('#incorrectNotifyer')){
+                  const incorrectNotifyer = document.createElement('p')
+                  incorrectNotifyer.id = 'incorrectNotifyer'
+                  incorrectNotifyer.innerHTML = 'The ID must be in hexadecimal value. Please provide a hexadecimal value.'
+
+                  idInputDiv.appendChild(incorrectNotifyer)
+                  return
+               }
             })
+
+            classClubIDInput.addEventListener('change', event => {
+               const number = parseInt(event.target.value.replace('#', ''), 16)
+
+               event.target.value = `#${isNaN(number) ? '00' : number.toString(16).length < 2 ? `0${number.toString(16)}` : number.toString(16)}`
+            })
+
+            findIDButton.addEventListener('click', async event => {
+               event.preventDefault()
+               console.log(classClubIDInput.value)
+
+               const request = await fetch('/find_id', {
+                  method: 'POST',
+                  headers: {
+                     "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify({
+                     classClubID: classClubIDInput.value
+                  })
+               })
+
+               if(request.status !== 200)return
+
+               classClubData = JSON.parse(await request.text())
+
+               for(let i = 0 ; i < 3 ; i++){
+                  const info = document.querySelectorAll('.sessionInfo')[i]
+
+                  if(i === 0)info.innerHTML = `ID: ${classClubIDInput.value}`
+                  else if(i === 1)info.innerHTML = `Class / Club name: ${classClubData.classClubName}`
+                  else info.innerHTML = `Type: null`
+               }
+            })
+            // ID finder handler end
+
+            // Placement fill-in logic start
+            // Placement fill-in logic end
+
+            // Bottom button logic start
+            // Bottom button logic end
          }
       </script>
    </head>
    <body>
       <h1>
-         Position marker (Prototype 1 - Markup)
+         Position marker (Prototype 4 - Scripts)
       </h1>
 
       <br>
 
       <p><b>Server-side process the ID and determine the type.</b></p>
 
-      <label for="photoID">Class / Club photo ID (Must be in hexadecimal) </label>
-      <input name="photoID" type="text" id="photoID" placeholder="#1a">
-      <input name="photoID" type="button" value="Find ID">
+      <form id="idInputDiv">
+         <label for="classClubID">Class / Club ID (Must be in hexadecimal) </label>
+         <input name="classClubID" type="text" id="classClubID" value="#00" maxlength="3">
+         <input name="classClubID" type="submit" id="findID" value="Find ID">
+      </form>
+
+      <p class="sessionInfo">ID: #00</p>
+      <p class="sessionInfo">Class / Club name: Placeholder</p>
+      <p class="sessionInfo">Type: Placeholder</p>
+
+      <p>ID: #00</p>
+      <p>Class / Club name: Placeholder</p>
 
       <p><b>Placement</b></p>
 
-      <label for="row_1_amount">Row 1 amount</label>
-      <input name="row_1_amount" type="button" value="+">
+      <label for="row_1_amount">Row 1</label>
 
       <br>
 
       <div id="row_1_div">
-         <div>
+         <form>
             <label for="1a">1A</label>
             <input name="1a" type="text" placeholder="Example name">
             <input name="1a" type="button" value="-">
-         </div>
+         </form>
+
+         <input name="row_1_amount" type="button" value="+">
       </div>
 
       <br>
 
-      <label for="row_2_amount">Row 2 amount</label>
-      <input name="row_2_amount" type="button" value="+">
+      <label for="row_2_amount">Row 2</label>
 
       <br>
 
       <div id="row_2_div">
-         <div>
+         <form>
             <label for="2a">2A</label>
             <input name="2a" type="text" placeholder="Example name">
             <input name="2a" type="button" value="-">
-         </div>
+         </form>
+
+         <input name="row_2_amount" type="button" value="+">
       </div>
 
       <br>
 
-      <p><b>NOTE: THIS IS FOR TYPE CLUB ONLY</b></p>
+      <p><b>NOTE: THIS IS FOR TYPE CLASS ONLY</b></p>
 
-      <label for="row_3_amount">Row 3 amount</label>
-      <input name="row_3_amount" type="button" value="+">
+      <label for="row_3_amount">Row 3</label>
 
       <div id="row_3_div">
-         <div>
+         <form>
             <label for="3a">3A</label>
             <input name="3a" type="text" placeholder="Example name">
             <input name="3a" type="button" value="-">
-         </div>
+         </form>
+
+         <input name="row_3_amount" type="button" value="+">
       </div>
+
+      <br>
+
+      <p><b>NOTE: THIS IS FOR TYPE CATEGORY ONLY</b></p>
+
+      <label for="row_4_amount">Row 4</label>
+
+      <div id="row_4_div">
+         <form>
+            <label for="4a">4A</label>
+            <input name="4a" type="text" placeholder="Example name">
+            <input name="4a" type="button" value="-">
+         </form>
+
+         <input name="row_4_amount" type="button" value="+">
+      </div>
+
+      <br>
+
+      <button>Save</button>
+      <button>Start new</button>
 
       <br>
 

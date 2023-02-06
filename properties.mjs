@@ -7,14 +7,20 @@ import readline from 'readline'
 
 console.log('Startup initiated...')
 
+// File location declaration
+
+const dynamicStore = './database/dynamic/'
+
 // Data cache
 
 const HTMLFiles = new Map()
 let classes
 let clubs
+let faculty
 let students
 let teachers
 let workers
+const photoIDIndex = new Map()
 
 // Functions
 
@@ -34,40 +40,62 @@ const sendHTML = (res, HTMLFileName, statusCode = 200) => {
       "Content-Encoding": "gzip"
    })
    res.end(HTMLFiles.get(HTMLFileName))
-
 }
 
 const loadData = () => {
-   const classesAndClubsFile = JSON.parse(fs.readFileSync('./database/fixed/classes&clubs.json'))
-   const studentsFacultyFile = JSON.parse(fs.readFileSync('./database/fixed/students&faculty.json'))
+   const fixedStore = './database/fixed'
+   const classesAndClubsFile = JSON.parse(fs.readFileSync(`${fixedStore}/classes&clubs.json`))
+   const studentsFacultyFile = JSON.parse(fs.readFileSync(`${fixedStore}/students&faculty.json`))
 
    classes = classesAndClubsFile.classes
    clubs = classesAndClubsFile.clubs
+   faculty = classesAndClubsFile.faculty
    students = studentsFacultyFile.students
    teachers = studentsFacultyFile.teachers
    workers = studentsFacultyFile.workers
 
    console.log(classes)
    console.log(clubs)
-   console.log(students)
-   console.log(teachers)
-   console.log(workers)
+   console.table(students)
+   console.table(teachers)
+   console.table(workers)
+}
+
+const loadDynamicData = () => {
+   const indexPhotos = dir => {
+      const items = fs.readdirSync(dir)
+
+      for(const item of items){
+         const stat = fs.lstatSync(`${dir}/${item}`)
+
+         if(stat.isDirectory())indexPhotos(`${dir}/${item}`)
+         else{
+            const fileData = JSON.parse(fs.readFileSync(`${dir}/${item}`))
+
+            photoIDIndex.set(fileData.id, fileData)
+         }
+      }
+   }
+
+   indexPhotos('./database/dynamic')
+
+   console.table(photoIDIndex)
 }
 
 // Load data to memory
 
 console.log('Loading HTML files...')
-
 loadHTMLFiles()
-
 console.log('All files loaded: ', HTMLFiles)
-console.log('HTML files successfully loaded to memory.')
+console.log('HTML files loaded to memory.')
 
-console.log('Loading class, student and faculty...')
-
+console.log('Loading Fixed database...')
 loadData()
+console.log('Fixed database loaded to memory.')
 
-console.log('Class, student and faculty list loaded to memory.')
+console.log('Loading dynamic database data...')
+loadDynamicData()
+console.log('Dynamic database loaded to memory.')
 
 // HTTP server
 
@@ -96,48 +124,33 @@ http.createServer(async(req, res) => {
          resolve()
       }))
 
+      if(!data.classClubID){
+         res.writeHead(400, {
+            "Content-Type": "application/json"
+         })
+
+         return res.end(JSON.stringify({
+            reason: "Class / Club ID is undefined"
+         }))
+      }
+
+      const refID = data.classClubID.replace('#', '')
+      const number = parseInt(refID, 16)
+
       switch(pathArray[1]){
          case 'find_id':
-            if(!data.photoID){
-               res.writeHead(400, {
-                  "Content-Type": "application/json"
-               })
-   
-               return res.end(JSON.stringify({
-                  reason: "PhotoID is undefined"
-               }))
-            }
-
-            let refID = data.photoID.replace('#', '')
-
-            let exist = false
             let classClubData = null
             let studentsList
             let teachersList
             let workersList
 
-            console.log(parseInt(`0x${refID}`))
+            console.log(number)
 
-            if(parseInt(`0x${refID}`) >= 50)for(const club of Object.keys(clubs)){
+            Object.keys(faculty).find(value => {if(value === refID)classClubData = faculty[value]})
+            Object.keys(clubs).find(value => {if(value === refID)classClubData = clubs[value]})
+            Object.keys(classes).find(value => {if(value === refID)classClubData = classes[value]})
 
-            }else if(parseInt(`0x${refID}`) >= 50)for(const club of Object.keys(clubs)){
-               if(club !== refID)continue
-
-               exist = true
-               classClubData = clubs[club]
-
-               break
-
-            }else for(const class1 of Object.keys(classes)){
-               if(class1 !== refID)continue
-
-               exist = true
-               classClubData = classes[class1]
-
-               break
-            }
-
-            if(!exist){
+            if(!classClubData){
                res.writeHead(404, {
                   "Content-Type": "application/json"
                })
@@ -149,21 +162,32 @@ http.createServer(async(req, res) => {
                return
             }
 
+            classClubData
+
             const find = (findList, charNeeded, referenceList) => {
                const returnList = {}
 
-               if(findList[0].command !== undefined && findList[0].command[0] === 'bulkSelect'){
-                  const starting = parseInt(findList[0].command[1], 16)
-                  const ending = parseInt(findList[0].command[2], 16)
+               if(findList[0]?.command?.length){
+                  for(let i = 0 ; i < findList[0].command.length - 1 ; i++){
+                     if(findList[0].command === undefined || findList[0].command[i][0] !== 'bulkSelect')continue
 
-                  for(let i = starting ; i <= ending ; i++){
-                     const checkChar = (number = i.toString(16)) => {
-                        if(number.length < charNeeded)return checkChar(`0${number}`)
+                     const starting = parseInt(findList[0].command[i][1], 16)
+                     const ending = parseInt(findList[0].command[i][2], 16)
+                     const exclusion = []
 
-                        returnList[number] = referenceList[number]
+                     if(findList[0].command[i][3])for(const excluded of findList[0].command[i][3])exclusion.push(parseInt(excluded, 16))
+
+                     for(let i = starting ; i <= ending ; i++){
+                        const checkChar = (number = i.toString(16)) => {
+                           if(number.length < charNeeded)return checkChar(`0${number}`)
+
+                           returnList[number] = referenceList[number]
+                        }
+
+                        if(exclusion.find(value => value === i))continue
+
+                        checkChar()
                      }
-
-                     checkChar()
                   }
                }
 
@@ -178,15 +202,26 @@ http.createServer(async(req, res) => {
             }
 
             if(classClubData.students)studentsList = find(classClubData.students, 3, students)
-            if(classClubData.teachers)teachersList = find(classClubData.teachers, 2, teachers)
-            if(classClubData.workers)workersList = find(classClubData.workers, 2, workers)
+            if(classClubData.teachers)teachersList = find(classClubData.teachers, 3, teachers)
+            if(classClubData.workers)workersList = find(classClubData.workers, 3, workers)
 
             res.writeHead(200, {
                "Content-Type": "application/json"
             })
 
+            const storeLocation = `${dynamicStore}/${refID.split('')[0]}0`
+
+            if(!fs.existsSync(`${storeLocation}/${refID}.json`)){
+               if(!fs.existsSync(storeLocation))fs.mkdirSync(storeLocation)
+               fs.writeFileSync(`${storeLocation}/${refID}.json`, JSON.stringify({
+                  id: refID,
+                  position: {}
+               }, null, 2))
+            }
+
             res.end(JSON.stringify({
-               className: classClubData.name,
+               classClubName: classClubData.name,
+               refID: `#${refID}`,
                studentsList,
                teachersList,
                workersList
@@ -195,6 +230,27 @@ http.createServer(async(req, res) => {
             break
 
          case 'save_position':
+            const { position } = data
+
+            if(!position || Object.keys(position).length === 0){
+               res.writeHead(400, {
+                  "Content-Type": "application/json"
+               })
+
+               res.end(JSON.stringify({
+                  reason: "No position given or position object is empty."
+               }, null, 2))
+            }
+
+            photoIDIndex.get(refID).position = position
+
+            fs.writeFileSync(`${dynamicStore}/${refID.split('')[0]}0/${refID}.json`, JSON.stringify(photoIDIndex.get(refID), null, 2))
+
+            res.writeHead(201, {
+               "Content-Type": "text/plain"
+            })
+
+            res.end('ok')
 
             break
       }

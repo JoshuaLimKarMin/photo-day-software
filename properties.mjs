@@ -220,7 +220,7 @@ http.createServer(async(req, res) => {
             }
 
             res.end(JSON.stringify({
-               className: classClubData.name,
+               classClubName: classClubData.name,
                refID: `#${refID}`,
                studentsList,
                teachersList,

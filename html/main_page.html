@@ -1,0 +1,236 @@
+<!DOCTYPE HTML>
+
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Photo day software (Prototype 4 - Scripts)</title>
+
+      <script>
+         "use strict"
+
+         window.onload = async() => {
+            // ID finder handler start
+            const idInputDiv = document.querySelector('#idInputDiv')
+            const classClubIDInput = document.querySelector('#classClubID')
+            const findIDButton = document.querySelector('#findID')
+
+            let classClubData = null
+
+            let lastValue = '#'
+
+            classClubIDInput.addEventListener('input', event => {
+               const input = event.target.value
+               if(!input.startsWith('#'))return event.target.value = `#${input}`
+
+               const number = parseInt(event.target.value.replace('#', ''), 16)
+
+               if(!isNaN(number) || input === '#'){
+                  lastValue = input
+
+                  if(document.querySelector('#incorrectNotifyer'))document.querySelector('#incorrectNotifyer').remove()
+                  return
+               }
+
+               event.target.value = lastValue
+
+               if(!document.querySelector('#incorrectNotifyer')){
+                  const incorrectNotifyer = document.createElement('p')
+                  incorrectNotifyer.id = 'incorrectNotifyer'
+                  incorrectNotifyer.innerHTML = 'The ID must be in hexadecimal value. Please provide a hexadecimal value.'
+
+                  idInputDiv.appendChild(incorrectNotifyer)
+                  return
+               }
+            })
+
+            classClubIDInput.addEventListener('change', event => {
+               const number = parseInt(event.target.value.replace('#', ''), 16)
+
+               event.target.value = `#${isNaN(number) ? '00' : number.toString(16).length < 2 ? `0${number.toString(16)}` : number.toString(16)}`
+            })
+
+            findIDButton.addEventListener('click', async event => {
+               event.preventDefault()
+               console.log(classClubIDInput.value)
+
+               const request = await fetch('/find_id', {
+                  method: 'POST',
+                  headers: {
+                     "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify({
+                     classClubID: classClubIDInput.value
+                  })
+               })
+
+               if(request.status !== 200)return
+
+               classClubData = JSON.parse(await request.text())
+
+               for(let i = 0 ; i < 3 ; i++){
+                  const info = document.querySelectorAll('.sessionInfo')[i]
+
+                  if(i === 0)info.innerHTML = `ID: ${classClubIDInput.value}`
+                  else if(i === 1)info.innerHTML = `Class / Club name: ${classClubData.classClubName}`
+                  else info.innerHTML = `Type: ${classClubData.type.charAt(0).toUpperCase() + classClubData.type.slice(1)}`
+               }
+            })
+            // ID finder handler end
+
+            // Placement fill-in logic start
+            const allAddButton = document.querySelectorAll('input[value="+"]')
+
+            let iteration = 1
+
+            for(const addButton of allAddButton){
+               const row = iteration
+               iteration++
+
+               addButton.addEventListener('click', event => {
+                  const placementInput = event.target.parentElement.querySelector('form')
+                  const placement = placementInput.querySelectorAll('div')
+
+                  if(placement.length > 255){
+                     if(placementInput.querySelector('.maxPlacementWarnning'))return
+
+                     const maxPlacement = document.createElement('p')
+
+                     maxPlacement.classList.add('maxPlacementWarnning')
+                     maxPlacement.innerHTML = 'Limit for placement is 255.'
+
+                     placementInput.appendChild(maxPlacement)
+                     return
+                  }
+
+                  const newElement = document.createElement('div')
+
+                  const positionHex = placement.length.toString(16)
+                  const currentPositionHex = positionHex.length < 2 ? `0${positionHex}` : positionHex
+
+                  console.log(placement)
+                  console.log(placement.length)
+                  console.log(currentPositionHex)
+
+                  newElement.innerHTML = `
+            <label for="${row}${currentPositionHex}">${row}${currentPositionHex}</label>
+            <input name="${row}${currentPositionHex}" type="text" placeholder="Example name">
+            <input name="${row}${currentPositionHex}" type="button" value="-">`
+
+                  placementInput.appendChild(newElement)
+
+               })
+            }
+            // Placement fill-in logic end
+
+            // Bottom button logic start
+            // Bottom button logic end
+         }
+      </script>
+   </head>
+   <body>
+      <h1>
+         Position marker (Prototype 4 - Scripts)
+      </h1>
+
+      <br>
+
+      <p><b>Server-side process the ID and determine the type.</b></p>
+
+      <form id="idInputDiv">
+         <label for="classClubID">Class / Club ID (Must be in hexadecimal) </label>
+         <input name="classClubID" type="text" id="classClubID" value="#00" maxlength="3">
+         <input name="classClubID" type="submit" id="findID" value="Find ID">
+      </form>
+
+      <p class="sessionInfo">ID: Placeholder</p>
+      <p class="sessionInfo">Class / Club name: Placeholder</p>
+      <p class="sessionInfo">Type: Placeholder</p>
+
+      <p><b>Placement</b></p>
+
+      <!--
+         NOTE TO SELF: Should change to a one input only system.
+      -->
+
+
+      <label for="row_1_amount">Row 1</label>
+
+      <br>
+
+      <div id="row_1_div" class="rowInputSection">
+         <form onsubmit="return false">
+            <div>
+               <label for="100">100</label>
+               <input name="100" type="text" placeholder="Example name">
+               <input name="100" type="button" value="-">
+            </div>
+         </form>
+
+         <input name="row_1_amount" type="button" value="+">
+      </div>
+
+      <br>
+
+      <label for="row_2_amount">Row 2</label>
+
+      <br>
+
+      <div id="row_2_div" class="rowInputSection">
+         <form onsubmit="return false">
+            <div>
+               <label for="200">200</label>
+               <input name="200" type="text" placeholder="Example name">
+               <input name="200" type="button" value="-">
+            </div>
+         </form>
+
+         <input name="row_2_amount" type="button" value="+">
+      </div>
+
+      <br>
+
+      <p><b>NOTE: THIS IS FOR TYPE CLASS ONLY</b></p>
+
+      <label for="row_3_amount">Row 3</label>
+
+      <div id="row_3_div" class="rowInputSection">
+         <form onsubmit="return false">
+            <div>
+               <label for="300">300</label>
+               <input name="300" type="text" placeholder="Example name">
+               <input name="300" type="button" value="-">
+            </div>
+         </form>
+
+         <input name="row_3_amount" type="button" value="+">
+      </div>
+
+      <br>
+
+      <p><b>NOTE: THIS IS FOR TYPE CATEGORY ONLY</b></p>
+
+      <label for="row_4_amount">Row 4</label>
+
+      <div id="row_4_div" class="rowInputSection">
+         <form onsubmit="return false">
+            <div>
+               <label for="400">400</label>
+               <input name="400" type="text" placeholder="Example name">
+               <input name="400" type="button" value="-">
+            </div>
+         </form>
+
+         <input name="row_4_amount" type="button" value="+">
+      </div>
+
+      <br>
+
+      <button>Save</button>
+      <button>Start new</button>
+
+      <br>
+
+      <button>Show all saves</button>
+   </body>
+</html>

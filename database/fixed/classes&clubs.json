@@ -1,0 +1,72 @@
+{
+   "classes": {
+      "00": {
+         "name": "Test class",
+         "students": [
+            {
+               "command": [
+                  [ "bulkSelect", "001", "01e" ],
+                  [ "bulkSelect", "01f", "03c" ]
+               ]
+            },
+            "03d"
+         ],
+         "teachers": [
+            "600"
+         ]
+      },
+      "10": {
+         "name": "Test class 2",
+         "students": [
+            {
+               "command": [
+                  [ "bulkSelect", "01f", "03c" ]
+               ]
+            }
+         ],
+         "teachers": [
+            "601"
+         ]
+      }
+   },
+   "clubs": {
+      "50": {
+         "name": "Test club",
+         "students": [],
+         "teachers": []
+      }
+   },
+   "category": {
+      "d0": {
+         "name": "Test club",
+         "students": [],
+         "teachers": []
+      }
+   },
+   "faculty": {
+      "f0":{
+         "name": "Teachers",
+         "teachers": [
+            {
+               "command": [ "bulkSelect", "600", "65f" ]
+            }
+         ]
+      },
+      "f1": {
+         "name": "canteen",
+         "workers": [
+            {
+               "command": [ "bulkSelect", "a00", "a06" ]
+            }
+         ]
+      },
+      "f2": {
+         "name": "janitors",
+         "workers": [
+            {
+               "command": [ "bulkSelect", "a06", "a09"]
+            }
+         ]
+      }
+   }
+}

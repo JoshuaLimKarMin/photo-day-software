@@ -1,0 +1,14 @@
+{
+  "name": "photo-day-tracking-software",
+  "version": "0.1.0",
+  "description": "Photo day's tracking software for all student photo's position.",
+  "main": "properties.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Joshua Lim",
+  "license": "ISC",
+  "dependencies": {
+    "ws": "^8.12.0"
+  }
+}

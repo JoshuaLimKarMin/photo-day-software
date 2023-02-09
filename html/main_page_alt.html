@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+
+<html>
+   <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Photo day software (Alt)[Prototype 1] (DISCARDED)</title>
+   </head>
+   <body>
+      <h1>
+         Position marker (alt 1)(Prototype 1) <b style="color: #ff0000">DISCARDED</b>
+      </h1>
+
+      <br>
+
+      <p><b>Server-side process the ID and determine the type.</b></p>
+
+      <form id="idInputDiv">
+         <label for="classClubID">Class / Club ID (Must be in hexadecimal) </label>
+         <input name="classClubID" type="text" id="classClubID" value="#00" maxlength="3">
+         <input name="classClubID" type="submit" id="findID" value="Find ID">
+      </form>
+
+      <p class="sessionInfo">ID: Placeholder</p>
+      <p class="sessionInfo">Class / Club name: Placeholder</p>
+      <p class="sessionInfo">Type: Placeholder</p>
+
+      <p><b>Placement</b></p>
+
+      <!--
+         NOTE TO SELF: Should change to a one input only system.
+      -->
+
+      <label for="row_1_amount">Row 1</label>
+
+      <br>
+
+      <div id="row_1_div" class="rowInputSection">
+         <div>
+            <form onsubmit="return false">
+               <p>Input:</p>
+               <input type="text" placeholder="Position">
+               <input type="text" placeholder="ID">
+               <input type="submit" value="Add">
+            </form>
+         </div>
+         <div>
+            <div>
+               <p style="display: inline-block">Position: #000 (There's some spacing here) ID: #000 (Again, spacing here) </p>
+               <button>-</button>
+            </div>
+            <div>
+               <p style="display: inline-block">Position: #001 (There's some spacing here) ID: #000 (Again, spacing here) </p>
+               <button>-</button>
+            </div>
+            <div>
+               <p style="display: inline-block">Position: #002 (There's some spacing here) ID: #000 (Again, spacing here) </p>
+               <button>-</button>
+            </div>
+         </div>
+      </div>
+
+      <br>
+
+      <label for="row_2_amount">Row 2</label>
+
+      <br>
+
+      <div id="row_2_div" class="rowInputSection">
+         <form>
+            <div>
+               <label for="200">200</label>
+               <input name="200" type="text" placeholder="Example name">
+               <input name="200" type="button" value="-">
+            </div>
+         </form>
+
+         <input name="row_2_amount" type="button" value="+">
+      </div>
+
+      <br>
+
+      <p><b>NOTE: THIS IS FOR TYPE CLASS ONLY</b></p>
+
+      <label for="row_3_amount">Row 3</label>
+
+      <div id="row_3_div" class="rowInputSection">
+         <form>
+            <div>
+               <label for="300">300</label>
+               <input name="300" type="text" placeholder="Example name">
+               <input name="300" type="button" value="-">
+            </div>
+         </form>
+
+         <input name="row_3_amount" type="button" value="+">
+      </div>
+
+      <br>
+
+      <p><b>NOTE: THIS IS FOR TYPE CATEGORY ONLY</b></p>
+
+      <label for="row_4_amount">Row 4</label>
+
+      <div id="row_4_div" class="rowInputSection">
+         <form>
+            <div>
+               <label for="400">400</label>
+               <input name="400" type="text" placeholder="Example name">
+               <input name="400" type="button" value="-">
+            </div>
+         </form>
+
+         <input name="row_4_amount" type="button" value="+">
+      </div>
+
+      <br>
+
+      <button>Save</button>
+      <button>Start new</button>
+
+      <br>
+
+      <button>Show all saves</button>
+   </body>
+</html>

@@ -81,14 +81,14 @@
             // Placement fill-in logic start
             const allAddButton = document.querySelectorAll('input[value="+"]')
 
-            let iteration = 0
+            let iteration = 1
 
             for(const addButton of allAddButton){
                const row = iteration
                iteration++
 
                addButton.addEventListener('click', event => {
-                  const placementInput = event.target.parentElement.parentElement
+                  const placementInput = event.target.parentElement.querySelector('form')
                   const placement = placementInput.querySelectorAll('div')
 
                   if(placement.length > 255){
@@ -111,16 +111,11 @@
                   console.log(placement)
                   console.log(placement.length)
                   console.log(currentPositionHex)
-                  
-                  // ID should be determined based on a cached list that is continuously updating.
 
-                  newElement.append(`<input type="text" value="#${row}${currentPositionHex}" maxlength="4" style="width: 2%">`)
-
-                  newElement.innerHTML = `${newElement.innerHTML}
-                  <input type="text" placeholder="Example name 🠆 ID">
-                  <input type="button" value="✎">
-                  <input type="button" value="−">
-                  <input type="button" value="+">`
+                  newElement.innerHTML = `
+            <label for="${row}${currentPositionHex}">${row}${currentPositionHex}</label>
+            <input name="${row}${currentPositionHex}" type="text" placeholder="Example name">
+            <input name="${row}${currentPositionHex}" type="button" value="-">`
 
                   placementInput.appendChild(newElement)
 
@@ -141,7 +136,7 @@
    </head>
    <body>
       <h1>
-         Position marker (Prototype 5 - Scripts)
+         Position marker (Prototype 4 - Scripts)
       </h1>
 
       <br>
@@ -150,7 +145,7 @@
 
       <form id="idInputDiv">
          <label for="classClubID">Class / Club ID (Must be in hexadecimal) </label>
-         <input name="classClubID" type="text" id="classClubID" maxlength="3">
+         <input name="classClubID" type="text" id="classClubID" value="#00" maxlength="3">
          <input name="classClubID" type="submit" id="findID" value="Find ID">
       </form>
 
@@ -160,79 +155,88 @@
 
       <p><b>Placement</b></p>
 
-      <p>Row 1</p>
+      <!--
+         NOTE TO SELF: Should change to a one input only system.
+      -->
+
+
+      <label for="row_1_amount">Row 1</label>
+
+      <br>
 
       <div id="row_1_div" class="rowInputSection">
          <form>
             <div>
-               <input type="text" value="#000" maxlength="4" style="width: 2%">
-               <input type="text" placeholder="Example name 🠆 ID">
-               <input type="button" value="✎">
-               <input type="button" value="−">
-               <input type="button" value="+">
+               <label for="100">100</label>
+               <input name="100" type="text" placeholder="Example name">
+               <input name="100" type="button" value="-">
             </div>
          </form>
+
+         <input name="row_1_amount" type="button" value="+">
       </div>
 
       <br>
 
-      <p>Row 2</p>
+      <label for="row_2_amount">Row 2</label>
+
+      <br>
 
       <div id="row_2_div" class="rowInputSection">
          <form>
             <div>
-               <input typw="text" value="#100" maxlength="4" style="width: 2%">
-               <input type="text" placeholder="Example name">
-               <input type="button" value="-">
+               <label for="200">200</label>
+               <input name="200" type="text" placeholder="Example name">
+               <input name="200" type="button" value="-">
             </div>
          </form>
 
-         <input type="button" value="+">
+         <input name="row_2_amount" type="button" value="+">
       </div>
 
       <br>
 
       <p><b>NOTE: THIS IS FOR TYPE CLASS ONLY</b></p>
 
-      <p>Row 3</p>
+      <label for="row_3_amount">Row 3</label>
 
       <div id="row_3_div" class="rowInputSection">
          <form>
             <div>
-               <input typw="text" value="#200" maxlength="4" style="width: 2%">
-               <input type="text" placeholder="Example name">
-               <input type="button" value="-">
+               <label for="300">300</label>
+               <input name="300" type="text" placeholder="Example name">
+               <input name="300" type="button" value="-">
             </div>
          </form>
 
-         <input type="button" value="+">
+         <input name="row_3_amount" type="button" value="+">
       </div>
 
       <br>
 
       <p><b>NOTE: THIS IS FOR TYPE CATEGORY ONLY</b></p>
 
-      <p>Row 4</p>
+      <label for="row_4_amount">Row 4</label>
 
       <div id="row_4_div" class="rowInputSection">
          <form>
             <div>
-               <input typw="text" value="#300" maxlength="4" style="width: 2%">
-               <input type="text" placeholder="Example name">
-               <input type="button" value="-">
+               <label for="400">400</label>
+               <input name="400" type="text" placeholder="Example name">
+               <input name="400" type="button" value="-">
             </div>
          </form>
 
-         <input type="button" value="+">
+         <input name="row_4_amount" type="button" value="+">
       </div>
 
       <br>
 
       <button>Save</button>
-      <button>New</button>
+      <button>Start new</button>
 
       <br>
 
-      <button>Show saves</button>
+      <button>Show all saves</button>
    </body>
 </html>

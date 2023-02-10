@@ -1,5 +1,7 @@
 "use strict"
 
+console.log('Copyright (c) Joshua Lim 2021 - 2023\n\n\n')
+
 import fs from 'fs'
 import http from 'http'
 import zlib from 'zlib'
@@ -103,7 +105,7 @@ console.log('Dynamic database loaded to memory.')
 
 // HTTP server
 
-http.createServer(async(req, res) => {
+const server = http.createServer(async(req, res) => {
    const pathArray = req.url.split('/')
 
    if(req.method === 'POST'){
@@ -302,6 +304,30 @@ http.createServer(async(req, res) => {
          sendHTML(res, 'not_found', 404)
 
    }
-}).listen(5510, () => console.log('Web server online on port 5510'))
+})
 
-fs.watch('./html', loadHTMLFiles)
+await new Promise(resolve => server.listen(5510, async() => {
+   console.log('Web server online on port 5510')
+
+   resolve()
+}))
+
+const htmlWatcher = fs.watch('./html', loadHTMLFiles)
+
+const rl = readline.createInterface({
+   input: process.stdin,
+   output: process.stdout,
+   prompt: ""
+})
+
+console.log('\n\nCommand line interface (CLI) ready\n\n')
+
+// rl.prompt()
+
+rl.on('line', input => {})
+
+rl.on('SIGINT', () => {
+   server.close()
+   rl.close()
+   htmlWatcher.close()
+})

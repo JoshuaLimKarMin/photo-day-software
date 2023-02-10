@@ -5,7 +5,7 @@
          "students": [
             {
                "command": [
-                  [ "bulkSelect", "001", "01e" ],
+                  [ "bulkSelect", "000", "01e" ],
                   [ "bulkSelect", "01f", "03c" ]
                ]
             },

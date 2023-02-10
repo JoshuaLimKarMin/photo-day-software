@@ -4,10 +4,14 @@
    <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Photo day software (Prototype 4 - Scripts)</title>
+      <title>Photo day software (Prototype 5 - Scripts)</title>
 
       <script>
          "use strict"
+
+         // CAHCE start
+         const position = {}
+         // CAHCE END
 
          window.onload = async() => {
             // ID finder handler start
@@ -78,7 +82,78 @@
             })
             // ID finder handler end
 
-            // Placement fill-in logic start
+            // Placement input logic start
+            const addNewInput = (row, event) => {
+               const placementInput = event.target.parentElement.parentElement
+               const placement = placementInput.querySelectorAll('div')
+
+               const currentElement = event.target.parentElement
+               const inputs = currentElement.querySelectorAll('input[type="text"]')
+
+               let found = false
+
+               const scan = find => {
+                  if(!find)throw new Error('"Find entries" not specified')
+
+                  for(const entry of Object.entries(find)){
+                     console.log(inputs[1].value, entry[1])
+                     if(inputs[1].value !== entry[1])continue
+
+                     position[inputs[0]] = entry[0]
+                     found = true
+                     inputs[1].value = entry[0]
+                     break
+                  }
+               }
+
+               scan(classClubData.studentsList)
+               if(found === false)scan(classClubData.teachersList)
+
+               if(found === false)return console.log("Student / Teacher not found.")
+
+               for(const input of inputs)input.disabled = true
+
+               if(placement.length > 255){
+                  if(placementInput.querySelector('.maxPlacementWarnning'))return
+
+                  const maxPlacement = document.createElement('p')
+
+                  maxPlacement.classList.add('maxPlacementWarnning')
+                  maxPlacement.innerHTML = 'Limit for placement is 255.'
+
+                  placementInput.appendChild(maxPlacement)
+                  return
+               }
+
+               const newElement = document.createElement('div')
+
+               const positionHex = placement.length.toString(16)
+               const currentPositionHex = positionHex.length < 2 ? `0${positionHex}` : positionHex
+
+               console.log(placement)
+               console.log(placement.length)
+               console.log(currentPositionHex)
+
+               // ID should be determined based on a cached list that is continuously updating.
+
+               newElement.innerHTML = `
+                  <input type="text" value="#${row}${currentPositionHex}" maxlength="4" style="width: 2%">
+                  <input type="text" placeholder="Example name 🠆 ID">
+                  <input type="button" value="✎">
+                  <input type="button" value="−">
+                  <input type="button" value="+">`
+
+               const idInputElement = newElement.querySelector(`input[value="+"]`)
+
+               idInputElement.addEventListener('click', event => {
+                  console.log('Button selected.')
+                  addNewInput(row, event)
+               })
+
+               placementInput.appendChild(newElement)
+
+            }
+
             const allAddButton = document.querySelectorAll('input[value="+"]')
 
             let iteration = 0
@@ -87,46 +162,9 @@
                const row = iteration
                iteration++
 
-               addButton.addEventListener('click', event => {
-                  const placementInput = event.target.parentElement.parentElement
-                  const placement = placementInput.querySelectorAll('div')
-
-                  if(placement.length > 255){
-                     if(placementInput.querySelector('.maxPlacementWarnning'))return
-
-                     const maxPlacement = document.createElement('p')
-
-                     maxPlacement.classList.add('maxPlacementWarnning')
-                     maxPlacement.innerHTML = 'Limit for placement is 255.'
-
-                     placementInput.appendChild(maxPlacement)
-                     return
-                  }
-
-                  const newElement = document.createElement('div')
-
-                  const positionHex = placement.length.toString(16)
-                  const currentPositionHex = positionHex.length < 2 ? `0${positionHex}` : positionHex
-
-                  console.log(placement)
-                  console.log(placement.length)
-                  console.log(currentPositionHex)
-                  
-                  // ID should be determined based on a cached list that is continuously updating.
-
-                  newElement.append(`<input type="text" value="#${row}${currentPositionHex}" maxlength="4" style="width: 2%">`)
-
-                  newElement.innerHTML = `${newElement.innerHTML}
-                  <input type="text" placeholder="Example name 🠆 ID">
-                  <input type="button" value="✎">
-                  <input type="button" value="−">
-                  <input type="button" value="+">`
-
-                  placementInput.appendChild(newElement)
-
-               })
+               addButton.addEventListener('click', event => addNewInput(row, event))
             }
-            // Placement fill-in logic end
+            // Placement input logic end
 
             // Bottom button logic start
             // Bottom button logic end
@@ -181,13 +219,13 @@
       <div id="row_2_div" class="rowInputSection">
          <form>
             <div>
-               <input typw="text" value="#100" maxlength="4" style="width: 2%">
-               <input type="text" placeholder="Example name">
-               <input type="button" value="-">
+               <input type="text" value="#100" maxlength="4" style="width: 2%">
+               <input type="text" placeholder="Example name 🠆 ID">
+               <input type="button" value="✎">
+               <input type="button" value="−">
+               <input type="button" value="+">
             </div>
          </form>
-
-         <input type="button" value="+">
       </div>
 
       <br>
@@ -199,13 +237,13 @@
       <div id="row_3_div" class="rowInputSection">
          <form>
             <div>
-               <input typw="text" value="#200" maxlength="4" style="width: 2%">
-               <input type="text" placeholder="Example name">
-               <input type="button" value="-">
+               <input type="text" value="#200" maxlength="4" style="width: 2%">
+               <input type="text" placeholder="Example name 🠆 ID">
+               <input type="button" value="✎">
+               <input type="button" value="−">
+               <input type="button" value="+">
             </div>
          </form>
-
-         <input type="button" value="+">
       </div>
 
       <br>
@@ -217,13 +255,13 @@
       <div id="row_4_div" class="rowInputSection">
          <form>
             <div>
-               <input typw="text" value="#300" maxlength="4" style="width: 2%">
-               <input type="text" placeholder="Example name">
-               <input type="button" value="-">
+               <input type="text" value="#300" maxlength="4" style="width: 2%">
+               <input type="text" placeholder="Example name 🠆 ID">
+               <input type="button" value="✎">
+               <input type="button" value="−">
+               <input type="button" value="+">
             </div>
          </form>
-
-         <input type="button" value="+">
       </div>
 
       <br>

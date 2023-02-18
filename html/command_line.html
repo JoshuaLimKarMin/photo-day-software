@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+
+<html lang="en">
+   <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>CLI based</title>
+      <style>
+         *{
+            background-color: #000;
+            color: #eee
+         }
+
+         body{
+            display: grid;
+            place-items: center;
+            height: 98vh
+         }
+
+         #main{
+            display: grid;
+            place-items: center;
+            border: solid 2px #777;
+            border-radius: 10px;
+            height: 93vh;
+            width: 95vw;
+         }
+
+         #output{
+            width: 93vw;
+            height: 83vh;
+            border: solid 2px #777;
+            border-radius: 10px;
+            padding: 5px;
+            overflow: auto;
+         }
+
+         input[type="text"]{
+            margin-top: 3px;
+            width: 88vw;
+            border: solid 2px #777;
+            border-radius: 10px;
+            padding: 5px;
+         }
+
+         input[type="submit"]{
+            background-color: #555;
+            padding: 5px 20px 5px 20px;
+            border-radius: 10px;
+         }
+
+         input[type="submit"]:enabled:hover, input[type="submit"]:enabled:focus{
+            border: solid 2px #777;
+         }
+
+         input[type="submit"]:enabled:active{
+            border: solid 2px #777;
+            opacity: .8
+         }
+      </style>
+      <script>
+         window.onload = async() => {
+            const output = document.querySelector('#output>code')
+
+            await new Promise(async resolve => {
+               output.innerText = output.innerText + '\nInnitialization in progress...'
+               await new Promise(resolve => {
+                  setTimeout(resolve, 1000);
+               })
+               output.innerText = output.innerText + '\nInnitialization complete.'
+
+               resolve()
+            })
+
+            const commandInput = document.querySelector('input[type="text"]')
+            const submitButton = document.querySelector('input[type="submit"]')
+            let focusIn = false
+
+            commandInput.removeAttribute('disabled')
+            submitButton.removeAttribute('disabled')
+
+            commandInput.addEventListener('focusin', () => focusIn = true)
+            commandInput.addEventListener('focusout', () => focusIn = false)
+
+            commandInput.addEventListener('input', event => {
+               if(event.target.value.charAt(0) === ' ')commandInput.value = ''
+            })
+
+            window.addEventListener('keyup', event => {
+               if(event.code !== 'Enter' || focusIn === false || event.shiftKey === true || commandInput.value === '')return
+
+               commandInput.value = ''
+            })
+         }
+      </script>
+   </head>
+   <body>
+      <div id="main">
+         <div id="output">
+            <code>
+               Copyright (C) Joshua Lim. All rights reserved.<br><br>
+            </code>
+         </div>
+         <code>
+            <form onsubmit="return false">
+               <input type="text" autocapitalize="off" spellcheck="false" autocomplete="off" autocomplete="off" autofocus="on" disabled>
+               <input type="submit" value="Send" disabled>
+            </form>
+         </code>
+      </div>
+   </body>
+</html>

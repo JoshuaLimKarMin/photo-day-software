@@ -1,6 +1,6 @@
 "use strict"
 
-console.log('Copyright (c) Joshua Lim 2021 - 2023\n\n\n')
+console.log('Copyright (C) Joshua Lim 2021 - 2023\n\n\n')
 
 import fs from 'fs'
 import http from 'http'

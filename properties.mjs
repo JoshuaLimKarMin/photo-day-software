@@ -9,6 +9,14 @@ import readline from 'readline'
 
 console.log('Startup initiated...')
 
+//Testing code
+
+const commandlineSystem = await import('./modules/commandline_system.mjs')
+
+commandlineSystem.fileLoader()
+
+process.exit()
+
 // File location declaration
 
 const dynamicStore = './database/dynamic/'

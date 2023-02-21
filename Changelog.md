@@ -1,5 +1,16 @@
 # Changelog
 
+## Update 0.1.0.230221
+- Commandline system partially implemented
+- - Read command files
+- - Header requirements
+- "load" command header
+- "get" command header
+
+## Update 0.1.0.230218
+- Commandline HTML
+- Changing the copyright data
+
 ## Update 0.1.0.230210
 - HTML page layout completely changed
 - HTML JavaScript updated with ability to add new inputs

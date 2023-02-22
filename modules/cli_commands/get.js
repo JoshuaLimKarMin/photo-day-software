@@ -1,3 +1,5 @@
 module.exports = {
-   command: 'get'
+   command: 'get',
+   alias: ['find'],
+   callback: () => {}
 }

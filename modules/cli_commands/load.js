@@ -1,6 +1,5 @@
 module.exports = {
-   // command: 'load',
-   disabled: true,
+   command: 'load',
    alias: [],
    callback: () => {}
 }

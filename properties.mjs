@@ -15,6 +15,16 @@ const commandlineSystem = await import('./modules/commandline_system.mjs')
 
 commandlineSystem.fileLoader()
 
+// await new Promise(resolve => setTimeout(() => {
+//    commandlineSystem.commandHandler('get')
+//    resolve()
+// }, 500))
+
+await new Promise(resolve => setTimeout(() => {
+   commandlineSystem.reloadCommands('all')
+   resolve()
+}, 500))
+
 process.exit()
 
 // File location declaration

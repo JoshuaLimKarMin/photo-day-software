@@ -1,5 +1,15 @@
 # Changelog
 
+## Update 0.1.0.230222
+- Commandline system
+- - Complete implementation of the file loader
+- - - Changes to ignore all files ending with "Test Only File.js"(-tof.js) file extensions
+- - Complete implementation of the reload function
+- - - Reload all commands
+- - - Reload for individual commands (File loader not ready)
+- - Partial implementation of the command handler
+- Schematic file for command file template (Won't be recognised as a real command)
+
 ## Update 0.1.0.230221
 - Commandline system partially implemented
 - - Read command files

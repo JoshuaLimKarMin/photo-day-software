@@ -6,26 +6,28 @@ import fs from 'fs'
 import http from 'http'
 import zlib from 'zlib'
 import readline from 'readline'
+import { WebSocketServer } from 'ws'
+const commandlineSystem = await import('./modules/commandline_system.mjs')
 
 console.log('Startup initiated...')
 
-//Testing code
-
-const commandlineSystem = await import('./modules/commandline_system.mjs')
-
 commandlineSystem.fileLoader()
+
+//Testing code start
 
 // await new Promise(resolve => setTimeout(() => {
 //    commandlineSystem.commandHandler('get')
 //    resolve()
 // }, 500))
 
-await new Promise(resolve => setTimeout(() => {
-   commandlineSystem.reloadCommands('all')
-   resolve()
-}, 500))
+// await new Promise(resolve => setTimeout(() => {
+//    commandlineSystem.reloadCommands('all')
+//    resolve()
+// }, 500))
 
-process.exit()
+// process.exit()
+
+// Test code end
 
 // File location declaration
 
@@ -124,7 +126,10 @@ console.log('Dynamic database loaded to memory.')
 // HTTP server
 
 const server = http.createServer(async(req, res) => {
+   console.log(req.headers)
    const pathArray = req.url.split('/')
+
+   if(req.headers.connection === 'Upgrade' && req.headers.upgrade === 'websocket')return
 
    if(req.method === 'POST'){
       let data
@@ -311,6 +316,11 @@ const server = http.createServer(async(req, res) => {
 
          break
 
+      case 'commandline':
+         sendHTML(res, 'command_line')
+
+         break
+
       case 'development':
          if(HTMLFiles.get(pathArray[2]))sendHTML(res, pathArray[2])
 
@@ -322,6 +332,34 @@ const server = http.createServer(async(req, res) => {
          sendHTML(res, 'not_found', 404)
 
    }
+})
+
+const wsServer = new WebSocketServer({ noServer: true })
+
+wsServer.on('connection', (socket, request) => {
+   socket.on('error', error => console.log(error))
+
+   socket.on('message', data => {
+      console.log('Received: %s', data)
+
+      const packageJsonData = JSON.parse(fs.readFileSync('./package.json'))
+      const jsonData = JSON.parse(data)
+
+      if(jsonData.request === 'versions'){
+         socket.send(JSON.stringify({
+            reply: jsonData.request,
+            body: {
+               appVersion: `${packageJsonData.version}${packageJsonData.build ? `.${packageJsonData.build}` : ''}`,
+               node: process.version
+            }
+         }))
+      }
+   })
+})
+
+server.on('upgrade', (req, socket, upgradeHead) => {
+   if(req.headers.upgrade !== 'websocket')return socket.destroy()
+   if(req.url === '/commandline')wsServer.handleUpgrade(req, socket, upgradeHead, wsConnection => wsServer.emit('connection', wsConnection, req))
 })
 
 await new Promise(resolve => server.listen(5510, async() => {

@@ -5,6 +5,8 @@ const require = createRequire(import.meta.url)
 let commandReference = {}
 let commandCache = []
 
+let mode  = 'normal'
+
 export const fileLoader = (fileToReload = null, assignID = null) => {
    const scan = dir => {
       for(const item of fs.readdirSync(dir)){
@@ -48,6 +50,7 @@ export const fileLoader = (fileToReload = null, assignID = null) => {
 
             const commandData = {
                commandNames,
+               mode: jsFile.mode || ['normal'],
                commandFilePath: `../${dir}/${item}`
             }
 
@@ -75,7 +78,7 @@ export const fileLoader = (fileToReload = null, assignID = null) => {
    console.log(commandCache)
 }
 
-export const commandHandler = request => {
+export const commandHandler = (request, client) => {
    if(typeof request !== 'string')return console.log('Command is not of type string')
 
    const requestArray = request.split(/[ ]/g)
@@ -87,7 +90,11 @@ export const commandHandler = request => {
 
    console.log("\nCommand execute request: " + request + '\x1b[1m\x1b[34m%s\x1b[0m', '\n[INFO]: Finding command...')
 
-   console.log(commandCache[commandReference[commandName]])
+   const command = commandCache[commandReference[commandName]]
+
+   if(!command.mode.find(mode))return console.log('Mode is not compatible.')
+
+   command.callback(client, args, text = request)
 }
 
 export const reloadCommands = resetCommand => {

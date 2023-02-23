@@ -1,5 +1,12 @@
 # Changelog
 
+## Update 0.1.0.230223
+- Implemented WebSocket module
+- Upgrade connection detection
+- Commandline page can communicate with server but server is not handling any requests
+- Schematics updated but will continue using previous version due to complexity
+- Command line system updated with the mode function partially implemented.
+
 ## Update 0.1.0.230222
 - Commandline system
 - - Complete implementation of the file loader

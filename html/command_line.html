@@ -61,15 +61,33 @@
       <script>
          window.onload = async() => {
             const output = document.querySelector('#output>code')
+            let socket
 
-            await new Promise(async resolve => {
-               output.innerText = output.innerText + '\nInnitialization in progress...'
-               await new Promise(resolve => {
-                  setTimeout(resolve, 1000);
+            await new Promise(async (resolve, reject) => {
+               output.innerText = output.innerText + '\nInnitialization in progress...\n\nRequesting upgrade...\n'
+
+               const socket = new WebSocket('ws://127.0.0.1:5510/commandline')
+
+               socket.addEventListener('open', () => {
+                  output.innerText = output.innerText + '\nUpgrade status: Successful\nProtocal: WebSocket'
+
+                  socket.send(JSON.stringify({
+                     request: "versions"
+                  }, null, 2))
+
+                  socket.addEventListener('message', data => {
+                     console.log(data)
+                     output.innerText = output.innerText + '\n\n' + data
+                     resolve()
+                  })
+
                })
-               output.innerText = output.innerText + '\nInnitialization complete.'
 
-               resolve()
+               socket.addEventListener('error', () => {
+                  output.innerText = output.innerText + '\nUpgrade status: Failed\nPlease contact your administrator'
+
+                  reject('Upgrade to WebSocket failed')
+               })
             })
 
             const commandInput = document.querySelector('input[type="text"]')
@@ -103,7 +121,7 @@
          </div>
          <code>
             <form onsubmit="return false">
-               <input type="text" autocapitalize="off" spellcheck="false" autocomplete="off" autocomplete="off" autofocus="on" disabled>
+               <input type="text" autocapitalize="off" spellcheck="false" autocomplete="off" autocomplete="off" autofocus="on" placeholder="Enter command" disabled>
                <input type="submit" value="Send" disabled>
             </form>
          </code>

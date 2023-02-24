@@ -1,5 +1,7 @@
 module.exports = {
    command: 'load',
    alias: [],
-   callback: () => {}
+   callback: (socket, args, text, cachedData) => {
+      console.log(cachedData)
+   }
 }

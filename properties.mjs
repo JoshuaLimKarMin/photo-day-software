@@ -345,15 +345,22 @@ wsServer.on('connection', (socket, request) => {
       const packageJsonData = JSON.parse(fs.readFileSync('./package.json'))
       const jsonData = JSON.parse(data)
 
+      const dependenciesVersion = {}
+      
+      for(const entry of Object.entries(packageJsonData.dependencies))dependenciesVersion[entry[0]] = entry[1].replace('^', '')
+
       if(jsonData.request === 'versions'){
          socket.send(JSON.stringify({
             reply: jsonData.request,
             body: {
                appVersion: `${packageJsonData.version}${packageJsonData.build ? `.${packageJsonData.build}` : ''}`,
-               node: process.version
+               nodeVersion: process.version,
+               dependencies: dependenciesVersion
             }
-         }))
+         }, null, 2))
       }
+
+      if(jsonData.command && jsonData.command !== '')commandlineSystem.commandHandler(jsonData.command, socket, { classes, clubs, category, faculty, peopleGroup: { students, teachers, workers }, photoIDIndex })
    })
 })
 

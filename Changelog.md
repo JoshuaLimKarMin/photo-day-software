@@ -1,14 +1,20 @@
 # Changelog
 
+## update 0.1.0.230224
+- Command-line initialization complete
+- Documentation on the Dtabase system (Note: will be outdated very soon)
+- Relaod command hard coded into the command-line handler file because of the mistake of writing everything in ES6 and having the commands be written in ES5 so that I can have the reload functions
+- Command-line can make changes on the application (Cannot interect with the Database at all)
+
 ## Update 0.1.0.230223
 - Implemented WebSocket module
 - Upgrade connection detection
 - Commandline page can communicate with server but server is not handling any requests
 - Schematics updated but will continue using previous version due to complexity
-- Command line system updated with the mode function partially implemented.
+- Command-line system updated with the mode function partially implemented.
 
 ## Update 0.1.0.230222
-- Commandline system
+- Command-line system
 - - Complete implementation of the file loader
 - - - Changes to ignore all files ending with "Test Only File.js"(-tof.js) file extensions
 - - Complete implementation of the reload function
@@ -18,14 +24,14 @@
 - Schematic file for command file template (Won't be recognised as a real command)
 
 ## Update 0.1.0.230221
-- Commandline system partially implemented
+- Command-line system partially implemented
 - - Read command files
 - - Header requirements
 - "load" command header
 - "get" command header
 
 ## Update 0.1.0.230218
-- Commandline HTML
+- Command-line HTML
 - Changing the copyright data
 
 ## Update 0.1.0.230210

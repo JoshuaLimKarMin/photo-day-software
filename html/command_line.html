@@ -35,6 +35,10 @@
             overflow: auto;
          }
 
+         #output>pre{
+            min-height: 500vh
+         }
+
          input[type="text"]{
             margin-top: 3px;
             width: 88vw;
@@ -43,10 +47,18 @@
             padding: 5px;
          }
 
+         input[type="text"]:disabled{
+            opacity: .75
+         }
+
          input[type="submit"]{
             background-color: #555;
             padding: 5px 20px 5px 20px;
             border-radius: 10px;
+         }
+
+         input[type="submit"]:disabled{
+            opacity: .75
          }
 
          input[type="submit"]:enabled:hover, input[type="submit"]:enabled:focus{
@@ -60,25 +72,48 @@
       </style>
       <script>
          window.onload = async() => {
-            const output = document.querySelector('#output>code')
+            const output = document.querySelector('#output>pre>code')
             let socket
+            const activeRequests = []
+
+            // Functions
+
+            const writeOutput = log => output.innerHTML = output.innerText + (output.innerText !== '' ? '\n\n' : '\n') + log
+
+            // main
+
+            writeOutput('Photo Day Placement Tracking (Command-line interface mode)\n\n\n\nRunning main script...')
 
             await new Promise(async (resolve, reject) => {
-               output.innerText = output.innerText + '\nInnitialization in progress...\n\nRequesting upgrade...\n'
+               writeOutput('Innitialization in progress...\n\nRequesting upgrade...')
 
-               const socket = new WebSocket('ws://127.0.0.1:5510/commandline')
+               socket = new WebSocket('ws://127.0.0.1:5510/commandline')
 
                socket.addEventListener('open', () => {
-                  output.innerText = output.innerText + '\nUpgrade status: Successful\nProtocal: WebSocket'
+                  writeOutput('Upgrade info:\nUpgrade status: Successful\nProtocal: WebSocket')
 
                   socket.send(JSON.stringify({
                      request: "versions"
                   }, null, 2))
 
-                  socket.addEventListener('message', data => {
-                     console.log(data)
-                     output.innerText = output.innerText + '\n\n' + data
-                     resolve()
+                  activeRequests.push('versions')
+
+                  socket.addEventListener('message', socket => {
+                     console.log(socket)
+
+                     const jsonData = JSON.parse(socket.data)
+
+                     console.log(jsonData)
+
+                     if(jsonData.writeOutput)writeOutput(jsonData.writeOutput)
+
+                     if(activeRequests.find(value => value === jsonData.reply)){
+                        delete activeRequests.find(value => value === jsonData.reply)
+
+                        if(jsonData.reply === 'versions')writeOutput('Versions: ' + JSON.stringify(jsonData.body, null, 2))
+
+                        resolve()
+                     }
                   })
 
                })
@@ -107,6 +142,12 @@
             window.addEventListener('keyup', event => {
                if(event.code !== 'Enter' || focusIn === false || event.shiftKey === true || commandInput.value === '')return
 
+               writeOutput('\n> ' + commandInput.value)
+
+               socket.send(JSON.stringify({
+                  command: commandInput.value
+               }))
+
                commandInput.value = ''
             })
          }
@@ -115,9 +156,9 @@
    <body>
       <div id="main">
          <div id="output">
-            <code>
-               Copyright (C) Joshua Lim. All rights reserved.<br><br>
-            </code>
+            <pre>
+               <code></code>
+            </pre>
          </div>
          <code>
             <form onsubmit="return false">

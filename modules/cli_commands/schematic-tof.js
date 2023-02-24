@@ -2,5 +2,5 @@ module.exports = {
    commands: '', // String
    alias: [], // Array
    mode: [], // Array
-   callback: () => {} // Function
+   callback: (socket, args, text, cachedData) => {} // Function
 }

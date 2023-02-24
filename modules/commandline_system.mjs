@@ -78,11 +78,11 @@ export const fileLoader = (fileToReload = null, assignID = null) => {
    console.log(commandCache)
 }
 
-export const commandHandler = (request, client) => {
+export const commandHandler = (request, socket, cachedData) => {
    if(typeof request !== 'string')return console.log('Command is not of type string')
 
    const requestArray = request.split(/[ ]/g)
-   const commandName = requestArray[0]
+   const commandName = requestArray[0].toLowerCase()
    requestArray.shift()
    const args = requestArray
 
@@ -90,11 +90,22 @@ export const commandHandler = (request, client) => {
 
    console.log("\nCommand execute request: " + request + '\x1b[1m\x1b[34m%s\x1b[0m', '\n[INFO]: Finding command...')
 
+   if(commandName === 'reload' || commandName === 'r'){
+      console.log('\x1b[1m\x1b[33m%s\x1b[0m', '[ALERT]: Reload command execution requested\n[ALERT]: Executing reload...\n')
+      reloadCommands('all')
+
+      socket.send(JSON.stringify({
+         writeOutput: 'Reload command executed and has completed successfully'
+      }))
+
+      return
+   }
+
    const command = commandCache[commandReference[commandName]]
 
    if(!command.mode.find(mode))return console.log('Mode is not compatible.')
 
-   command.callback(client, args, text = request)
+   command.callback(socket, args, text = args.join(), cachedData)
 }
 
 export const reloadCommands = resetCommand => {

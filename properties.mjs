@@ -337,10 +337,34 @@ const server = http.createServer(async(req, res) => {
 const wsServer = new WebSocketServer({ noServer: true })
 
 wsServer.on('connection', (socket, request) => {
+   const connectionCache = {
+      lastCommunicationTime: Date.now(),
+      lastPingResponded: true,
+   }
+
+   const pingSystem = setInterval(() => {
+      if(Date.now() - connectionCache.lastCommunicationTime < 10000)return console.log('Ping cancelled')
+      if(connectionCache.lastPingResponded === false){
+         console.log('\x1b[1m\x1b[33m%s\x1b[0m', '[ALERT]: Connection dropped because client timed out')
+
+         clearInterval(pingSystem)
+
+         return socket.close(undefined, 'CONNECTION_TIMED_OUT')
+      }
+
+      socket.send('ping')
+
+      connectionCache.lastPingResponded = false
+   }, 10000)
+
    socket.on('error', error => console.log(error))
 
    socket.on('message', data => {
       console.log('Received: %s', data)
+
+      if(data.toString() === 'ping')return connectionCache.lastPingResponded = true
+
+      connectionCache.lastCommunicationTime = Date.now()
 
       const packageJsonData = JSON.parse(fs.readFileSync('./package.json'))
       const jsonData = JSON.parse(data)

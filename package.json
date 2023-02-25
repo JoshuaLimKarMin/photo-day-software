@@ -1,7 +1,7 @@
 {
   "name": "photo-day-tracking-software",
   "version": "0.1.0",
-  "build": "230224",
+  "build": "230225",
   "description": "Photo day's tracking software for all student photo's position.",
   "main": "properties.mjs",
   "scripts": {

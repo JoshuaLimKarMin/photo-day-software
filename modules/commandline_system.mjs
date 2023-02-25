@@ -28,7 +28,7 @@ export const fileLoader = (fileToReload = null, assignID = null) => {
                delete require.cache[require.resolve(`../${dir}/${item}`)]
             }
 
-            const { command, disabled, alias } = jsFile
+            const { command, disabled, alias, mode, callback } = jsFile
 
             if(!command || typeof command !== 'string' || command === ''){
                console.log('\x1b[1m\x1b[31m%s\x1b[0m', `[WARNING]: "${item}" rejected due to command header not meeting the requirements.`)
@@ -42,6 +42,12 @@ export const fileLoader = (fileToReload = null, assignID = null) => {
                continue
             }
 
+            if(!callback){
+               console.log('\x1b[1m\x1b[31m%s\x1b[0m', `[WARNING]: "${item}" rejected due to command not having a callback.`)
+               removeRequireCache()
+               continue
+            }
+
             commandReference[command] = commandCache.length
 
             if(jsFile.alias)for(const alias of jsFile.alias)commandReference[alias] = commandCache.length
@@ -50,7 +56,7 @@ export const fileLoader = (fileToReload = null, assignID = null) => {
 
             const commandData = {
                commandNames,
-               mode: jsFile.mode || ['normal'],
+               mode: mode ? mode : ['normal'],
                commandFilePath: `../${dir}/${item}`
             }
 
@@ -59,7 +65,7 @@ export const fileLoader = (fileToReload = null, assignID = null) => {
             for(const entry of Object.entries(jsFile)){
                if(entry[0] === 'command' || entry[0] === 'disabled' || entry[0] === 'alias')continue
 
-               commandData[entry[0]] += entry[1]
+               commandData[entry[0]] = entry[1]
             }
 
             console.log(jsFile, '\n', commandData)
@@ -94,18 +100,23 @@ export const commandHandler = (request, socket, cachedData) => {
       console.log('\x1b[1m\x1b[33m%s\x1b[0m', '[ALERT]: Reload command execution requested\n[ALERT]: Executing reload...\n')
       reloadCommands('all')
 
-      socket.send(JSON.stringify({
+      return socket.send(JSON.stringify({
          writeOutput: 'Reload command executed and has completed successfully'
       }))
-
-      return
    }
 
    const command = commandCache[commandReference[commandName]]
 
-   if(!command.mode.find(mode))return console.log('Mode is not compatible.')
+   if(!command){
+      console.log('Command not found')
+      return socket.send(JSON.stringify({
+         writeOutput: 'Command not found'
+      }))
+   }
 
-   command.callback(socket, args, text = args.join(), cachedData)
+   if(!command.mode.find(value => value === mode))return console.log('Mode is not compatible.')
+
+   command.callback(socket, args, args.join(), cachedData)
 }
 
 export const reloadCommands = resetCommand => {

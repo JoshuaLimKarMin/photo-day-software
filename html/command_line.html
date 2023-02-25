@@ -74,7 +74,13 @@
          window.onload = async() => {
             const output = document.querySelector('#output>pre>code')
             let socket
+            let started = false
             const activeRequests = []
+
+            // HTML fuction elements
+            const commandInput = document.querySelector('input[type="text"]')
+            const submitButton = document.querySelector('input[type="submit"]')
+            let focusIn = false
 
             // Functions
 
@@ -84,9 +90,37 @@
 
             writeOutput('Photo Day Placement Tracking (Command-line interface mode)\n\n\n\nRunning main script...')
 
-            await new Promise(async (resolve, reject) => {
-               writeOutput('Innitialization in progress...\n\nRequesting upgrade...')
+            const mainScript = () => {
+               commandInput.removeAttribute('disabled')
+               submitButton.removeAttribute('disabled')
 
+               commandInput.addEventListener('focusin', () => focusIn = true)
+               commandInput.addEventListener('focusout', () => focusIn = false)
+
+               commandInput.focus()
+
+               commandInput.addEventListener('input', event => {
+                  if(event.target.value.charAt(0) === ' ')commandInput.value = ''
+               })
+
+               window.addEventListener('keyup', event => {
+                  if(event.code !== 'Enter' || focusIn === false || event.shiftKey === true || commandInput.value === '')return
+
+                  writeOutput('\n> ' + commandInput.value)
+
+                  socket.send(JSON.stringify({
+                     command: commandInput.value
+                  }))
+
+                  commandInput.value = ''
+               })
+            }
+
+            // WebSocket handler
+
+            writeOutput('Innitialization in progress...\n\nRequesting upgrade...')
+
+            const runWebSocket = () => {
                socket = new WebSocket('ws://127.0.0.1:5510/commandline')
 
                socket.addEventListener('open', () => {
@@ -98,10 +132,12 @@
 
                   activeRequests.push('versions')
 
-                  socket.addEventListener('message', socket => {
-                     console.log(socket)
+                  socket.addEventListener('message', res => {
+                     console.log(res)
 
-                     const jsonData = JSON.parse(socket.data)
+                     if(res.data === 'ping')return socket.send('ping')
+
+                     const jsonData = JSON.parse(res.data)
 
                      console.log(jsonData)
 
@@ -110,46 +146,47 @@
                      if(activeRequests.find(value => value === jsonData.reply)){
                         delete activeRequests.find(value => value === jsonData.reply)
 
-                        if(jsonData.reply === 'versions')writeOutput('Versions: ' + JSON.stringify(jsonData.body, null, 2))
+                        if(jsonData.reply === 'versions'){
+                           writeOutput('Versions: ' + JSON.stringify(jsonData.body, null, 2))
 
-                        resolve()
+                           if(started === false){
+                              mainScript()
+
+                              started = true
+
+                           }else{
+                              commandInput.removeAttribute('disabled')
+                              submitButton.removeAttribute('disabled')
+                           }
+                        }
                      }
                   })
-
                })
 
                socket.addEventListener('error', () => {
-                  output.innerText = output.innerText + '\nUpgrade status: Failed\nPlease contact your administrator'
+                  writeOutput('Upgrade status: Failed\nPlease contact your administrator\nRetrying in 5 seconds...')
 
-                  reject('Upgrade to WebSocket failed')
+                  setTimeout(() => {
+                     writeOutput('Attempting to connect...')
+                     socket = null
+
+                     runWebSocket()
+                  }, 5000);
                })
-            })
 
-            const commandInput = document.querySelector('input[type="text"]')
-            const submitButton = document.querySelector('input[type="submit"]')
-            let focusIn = false
+               socket.addEventListener('close', () => {
+                  writeOutput('\nConnection was terminated\nReconnecting...')
 
-            commandInput.removeAttribute('disabled')
-            submitButton.removeAttribute('disabled')
+                  commandInput.setAttribute('disabled', true)
+                  submitButton.setAttribute('disabled', true)
 
-            commandInput.addEventListener('focusin', () => focusIn = true)
-            commandInput.addEventListener('focusout', () => focusIn = false)
+                  socket = null
 
-            commandInput.addEventListener('input', event => {
-               if(event.target.value.charAt(0) === ' ')commandInput.value = ''
-            })
+                  runWebSocket()
+               })
+            }
 
-            window.addEventListener('keyup', event => {
-               if(event.code !== 'Enter' || focusIn === false || event.shiftKey === true || commandInput.value === '')return
-
-               writeOutput('\n> ' + commandInput.value)
-
-               socket.send(JSON.stringify({
-                  command: commandInput.value
-               }))
-
-               commandInput.value = ''
-            })
+            runWebSocket()
          }
       </script>
    </head>
@@ -162,7 +199,7 @@
          </div>
          <code>
             <form onsubmit="return false">
-               <input type="text" autocapitalize="off" spellcheck="false" autocomplete="off" autocomplete="off" autofocus="on" placeholder="Enter command" disabled>
+               <input type="text" autocapitalize="off" spellcheck="false" autocomplete="off" autocomplete="off" placeholder="Enter command" disabled>
                <input type="submit" value="Send" disabled>
             </form>
          </code>
